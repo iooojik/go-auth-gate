@@ -1,7 +1,8 @@
 package google
 
 type Config struct {
-	URL string
+	URL   string `yaml:"url"`
+	AppID string `yaml:"appID"`
 }
 
 type Client struct {
@@ -9,8 +10,11 @@ type Client struct {
 	cfg    Config
 }
 
-func New() *Client {
-	c := &Client{}
+func New(cfg Config, client HTTPClient) *Client {
+	c := &Client{
+		client: client,
+		cfg:    cfg,
+	}
 
 	return c
 }

@@ -11,7 +11,7 @@ import (
 	json "github.com/json-iterator/go"
 )
 
-func (r *Client) RefreshToken(ctx context.Context, token string) (*TokenInfo, error) {
+func (r *Client) TokenInfo(ctx context.Context, token string) (*TokenInfo, error) {
 	u, err := prepareLink(r.cfg.URL, url.Values{
 		"id_token": []string{token},
 	})
@@ -54,7 +54,7 @@ func checkResponse(resp *http.Response) error {
 		return fmt.Errorf("decode error message: %w", err)
 	}
 
-	if errMessage.ErrorDescription == "The code has expired or has been revoked." {
+	if errMessage.Error == "invalid_token" {
 		return ErrTokenRevokedOrInvalid
 	}
 
