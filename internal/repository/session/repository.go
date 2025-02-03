@@ -1,3 +1,3 @@
-package user
+package session
 
 type Repository struct{}
