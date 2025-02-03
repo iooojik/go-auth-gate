@@ -1,0 +1,10 @@
+issue-845-fix: true
+resolve-type-alias: false
+with-expecter: true
+filename: "{{.MockName}}.go"
+mockname: "{{.InterfaceName}}"
+outpkg: mocks
+packages:
+  github.com/iooojik/go-auth-gate/pkg/apple:
+    config:
+      dir: "{{.InterfaceDir}}/mocks"

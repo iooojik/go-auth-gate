@@ -2,102 +2,193 @@ package apple_test
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/url"
-	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/iooojik/go-auth-gate/pkg/apple"
+	"github.com/iooojik/go-auth-gate/pkg/apple/mocks"
+	"github.com/stretchr/testify/require"
 )
 
 func TestClient_RefreshToken(t *testing.T) {
+	t.Parallel()
+
 	type fields struct {
-		cfg            Config
-		tokenGenerator ClientSecretGenerator
+		cfg            apple.Config
+		tokenGenerator apple.ClientSecretGenerator
 	}
+
 	type args struct {
-		ctx     context.Context
-		refresh Refresh
+		httpClient *mocks.HTTPClient
+		refresh    apple.Refresh
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *AuthCode
+		setup   func(ctx context.Context, a *args)
+		want    *apple.AuthCode
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "test#1",
+			fields: fields{
+				tokenGenerator: func(cfg apple.TokenConfig) (string, error) {
+					return "clientToken1", nil
+				},
+				cfg: apple.Config{
+					URL: "https://appleid.apple.com",
+				},
+			},
+			args: args{
+				refresh: apple.Refresh{
+					RefreshToken: "refreshToken",
+				},
+			},
+			setup: func(ctx context.Context, a *args) {
+				u, err := url.Parse("https://appleid.apple.com/auth/token?client_id=&client_secret=clientToken1&grant_type=refresh_token&refresh_token=refreshToken")
+				require.NoError(t, err)
+
+				req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, u.String(), nil)
+				require.NoError(t, err)
+
+				a.httpClient.
+					EXPECT().
+					Do(req).
+					Return(&http.Response{
+						StatusCode: http.StatusOK,
+						Body: io.NopCloser(strings.NewReader(
+							"{\n    \"access_token\": \"access_token_body\"," +
+								"\n    \"token_type\": \"Bearer\",\n    \"expires_in\": 881," +
+								"\n    \"refresh_token\": \"refresh_token_body\"," +
+								"\n    \"id_token\": \"id_token_body\"\n}")),
+					}, nil)
+			},
+			want: &apple.AuthCode{
+				AccessToken:  "access_token_body",
+				TokenType:    "Bearer",
+				ExpiresIn:    881,
+				RefreshToken: "refresh_token_body",
+				IDToken:      "id_token_body",
+			},
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &Client{
-				cfg:            tt.fields.cfg,
-				tokenGenerator: tt.fields.tokenGenerator,
+			t.Parallel()
+
+			tt.args.httpClient = mocks.NewHTTPClient(t)
+
+			ctx := context.Background()
+
+			tt.setup(ctx, &tt.args)
+
+			r := apple.New(tt.fields.cfg, tt.fields.tokenGenerator, tt.args.httpClient)
+
+			got, err := r.RefreshToken(ctx, tt.args.refresh)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 			}
-			got, err := r.RefreshToken(tt.args.ctx, tt.args.refresh)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("RefreshToken() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("RefreshToken() got = %v, want %v", got, tt.want)
-			}
+
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
 
 func TestClient_ReceiveToken(t *testing.T) {
+	t.Parallel()
+
 	type fields struct {
 		cfg            apple.Config
 		tokenGenerator apple.ClientSecretGenerator
 	}
+
 	type args struct {
-		ctx context.Context
-		gen apple.Generate
+		httpClient *mocks.HTTPClient
+		gen        apple.Generate
 	}
+
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *AuthCode
+		setup   func(ctx context.Context, a *args)
+		want    *apple.AuthCode
 		wantErr bool
 	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := &apple.Client{
-				cfg:            tt.fields.cfg,
-				tokenGenerator: tt.fields.tokenGenerator,
-			}
-			got, err := r.ReceiveToken(tt.args.ctx, tt.args.gen)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ReceiveToken() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ReceiveToken() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+		{
+			name: "test#1",
+			fields: fields{
+				tokenGenerator: func(cfg apple.TokenConfig) (string, error) {
+					return "clientToken1", nil
+				},
+				cfg: apple.Config{
+					URL: "https://appleid.apple.com",
+				},
+			},
+			args: args{
+				gen: apple.Generate{
+					Code: "123",
+				},
+			},
+			setup: func(ctx context.Context, a *args) {
+				u, err := url.Parse("https://appleid.apple.com/auth/token?client_id=&client_secret=clientToken1&code=123&grant_type=authorization_code")
+				require.NoError(t, err)
 
-func Test_checkResponse(t *testing.T) {
-	type args struct {
-		resp *http.Response
+				req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, u.String(), nil)
+				require.NoError(t, err)
+
+				a.httpClient.
+					EXPECT().
+					Do(req).
+					Return(&http.Response{
+						StatusCode: http.StatusOK,
+						Body: io.NopCloser(strings.NewReader(
+							"{\n    \"access_token\": \"access_token_body\"," +
+								"\n    \"token_type\": \"Bearer\",\n    \"expires_in\": 881," +
+								"\n    \"refresh_token\": \"refresh_token_body\"," +
+								"\n    \"id_token\": \"id_token_body\"\n}")),
+					}, nil)
+			},
+			want: &apple.AuthCode{
+				AccessToken:  "access_token_body",
+				TokenType:    "Bearer",
+				ExpiresIn:    881,
+				RefreshToken: "refresh_token_body",
+				IDToken:      "id_token_body",
+			},
+			wantErr: false,
+		},
 	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := apple.checkResponse(tt.args.resp); (err != nil) != tt.wantErr {
-				t.Errorf("checkResponse() error = %v, wantErr %v", err, tt.wantErr)
+			t.Parallel()
+
+			tt.args.httpClient = mocks.NewHTTPClient(t)
+
+			ctx := context.Background()
+
+			tt.setup(ctx, &tt.args)
+
+			r := apple.New(tt.fields.cfg, tt.fields.tokenGenerator, tt.args.httpClient)
+
+			got, err := r.ReceiveToken(ctx, tt.args.gen)
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 			}
+
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

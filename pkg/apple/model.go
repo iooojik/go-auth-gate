@@ -15,3 +15,8 @@ type AuthCode struct {
 	RefreshToken string `json:"refresh_token"`
 	IDToken      string `json:"id_token"`
 }
+
+type ErrorMessage struct {
+	Error            string `json:"error"`
+	ErrorDescription string `json:"error_description"`
+}

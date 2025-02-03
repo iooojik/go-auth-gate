@@ -4,7 +4,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/pem"
-	"errors"
 	"fmt"
 	"time"
 
@@ -22,10 +21,7 @@ type TokenConfig struct {
 }
 
 func GenerateClientSecret(privateKey []byte) ClientSecretGenerator {
-	ecdsaKey, err := parseECPrivateKey(privateKey)
-	if err != nil {
-		panic(fmt.Errorf("parsing private key: %w", err))
-	}
+	ecdsaKey := ParseECPrivateKey(privateKey)
 
 	return func(cfg TokenConfig) (string, error) {
 		headers := jwt.MapClaims{
@@ -48,21 +44,21 @@ func GenerateClientSecret(privateKey []byte) ClientSecretGenerator {
 	}
 }
 
-func parseECPrivateKey(pemKey []byte) (*ecdsa.PrivateKey, error) {
+func ParseECPrivateKey(pemKey []byte) *ecdsa.PrivateKey {
 	block, _ := pem.Decode(pemKey)
 	if block == nil || block.Type != "PRIVATE KEY" {
-		return nil, errors.New("failed to decode PEM block containing private key")
+		panic(ErrDecodePEMBlock)
 	}
 
 	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse private key: %w", err)
+		panic(fmt.Errorf("failed to parse private key: %w", err))
 	}
 
 	ecdsaKey, ok := key.(*ecdsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("key is not of type ECDSA")
+		panic(ErrKeyIsNotECDSA)
 	}
 
-	return ecdsaKey, nil
+	return ecdsaKey
 }

@@ -5,26 +5,27 @@ import (
 )
 
 type Config struct {
-	tokenConfig TokenConfig `yaml:"token"`
+	TokenConfig TokenConfig `yaml:"token"`
 	URL         string      `yaml:"url"`
-	// KeyPath  string `yaml:"keyPath"`
-	client HTTPClient `yaml:"-"`
+	KeyPath     string      `yaml:"keyPath"`
 }
 
 type Client struct {
 	cfg            Config
 	tokenGenerator ClientSecretGenerator
+	client         HTTPClient
 }
 
 // New creates a new instance of Client.
-func New(cfg Config, tokenGenerator ClientSecretGenerator) *Client {
-	if cfg.client == nil {
-		cfg.client = http.DefaultClient
+func New(cfg Config, tokenGenerator ClientSecretGenerator, client HTTPClient) *Client {
+	if client == nil {
+		client = http.DefaultClient
 	}
 
 	cl := &Client{
 		cfg:            cfg,
 		tokenGenerator: tokenGenerator,
+		client:         client,
 	}
 
 	return cl
