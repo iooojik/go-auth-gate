@@ -5,7 +5,8 @@ type Refresh struct {
 }
 
 type Generate struct {
-	Code string
+	Code   string
+	UserID string
 }
 
 type AuthCode struct {

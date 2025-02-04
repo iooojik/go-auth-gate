@@ -8,23 +8,34 @@ import (
 )
 
 func (r *Repository) Login(ctx context.Context, loginInfo model.LoginInfo) error {
-	// SQL-запрос
-	query := `
-		INSERT INTO users (apple_id, session_duration, created_at, auth_type)
-		SELECT ?, ?, NOW(), 'apple_sign_in'
-		WHERE NOT EXISTS (
-			SELECT 1 FROM users WHERE apple_id = ?
-		);
-	
-		INSERT INTO user_tokens (user_id, token, created_at)
-		SELECT id, ?, NOW()
-		FROM users WHERE apple_id = ?
-		ON DUPLICATE KEY UPDATE token = VALUES(token), created_at = NOW();`
-
-	// 1. Первый запрос: создаем пользователя и первый токен
-	_, err := db.Exec(query, appleID, sessionDuration, appleID, token1, appleID)
+	tx, err := r.client.Begin()
 	if err != nil {
-		return fmt.Errorf("exec query: %w", err)
+		return fmt.Errorf("start transaction: %w", err)
+	}
+
+	_, err = tx.ExecContext(ctx, `
+INSERT INTO users (user_id, session_duration, created_at, auth_type)
+VALUES (?, ?, NOW(), ?)
+ON DUPLICATE KEY UPDATE 
+    session_duration = VALUES(session_duration);
+`, loginInfo.UserID, r.cfg.SessionDuration, loginInfo.TokenType)
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("insert user: %w", err)
+	}
+
+	_, err = tx.ExecContext(ctx, `INSERT INTO user_tokens (user_id, token, created_at)
+VALUES (?, ?, NOW())
+ON DUPLICATE KEY UPDATE token = VALUES(token), created_at = NOW();`,
+		loginInfo.UserID, loginInfo.Token)
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("insert tokens: %w", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("commit transacion: %w", err)
 	}
 
 	return nil
