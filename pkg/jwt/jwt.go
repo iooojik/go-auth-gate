@@ -14,44 +14,50 @@ const (
 	TokenHeader = "Token"
 )
 
-type TokenGenerator func(id string) (string, error)
+type (
+	TokenGenerator func(id string) (string, error)
+
+	TokenValidator func(token string) (*TokenClaims, error)
+)
 
 type TokenClaims struct {
 	TokenUser `json:"user"`
 	jwt.RegisteredClaims
 }
 
-func ValidateToken(headerToken, secret string) (*TokenClaims, error) {
-	if headerToken == "" {
-		return nil, nil //nolint:nilnil
-	}
-
-	token, err := jwt.Parse(headerToken, func(token *jwt.Token) (any, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, ErrInvalidToken
+func ValidateToken(secret string) TokenValidator {
+	return func(headerToken string) (*TokenClaims, error) {
+		if headerToken == "" {
+			return nil, nil //nolint:nilnil
 		}
 
-		return []byte(secret), nil
-	})
-	if err != nil {
-		return new(TokenClaims), err
+		token, err := jwt.Parse(headerToken, func(token *jwt.Token) (any, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, ErrInvalidToken
+			}
+
+			return []byte(secret), nil
+		})
+		if err != nil {
+			return new(TokenClaims), err
+		}
+
+		mappedData, _ := token.Claims.(jwt.MapClaims)
+
+		data, err := json.Marshal(mappedData)
+		if err != nil {
+			return nil, fmt.Errorf("marshal claims: %w", err)
+		}
+
+		ctx := new(TokenClaims)
+
+		err = json.Unmarshal(data, ctx)
+		if err != nil {
+			return nil, fmt.Errorf("unmarshal claims: %w", err)
+		}
+
+		return ctx, nil
 	}
-
-	mappedData, _ := token.Claims.(jwt.MapClaims)
-
-	data, err := json.Marshal(mappedData)
-	if err != nil {
-		return nil, fmt.Errorf("marshal claims: %w", err)
-	}
-
-	ctx := new(TokenClaims)
-
-	err = json.Unmarshal(data, ctx)
-	if err != nil {
-		return nil, fmt.Errorf("unmarshal claims: %w", err)
-	}
-
-	return ctx, nil
 }
 
 func GenerateToken(key, domain string) TokenGenerator {

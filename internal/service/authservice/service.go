@@ -6,8 +6,16 @@ type Service struct {
 	sessionsRepository SessionRepository
 }
 
-func New() *Service {
-	s := &Service{}
+func New(
+	appleSignIn AppleSignIn,
+	googleSignIn GoogleSignIn,
+	sessionsRepository SessionRepository,
+) *Service {
+	s := &Service{
+		appleSignIn:        appleSignIn,
+		googleSignIn:       googleSignIn,
+		sessionsRepository: sessionsRepository,
+	}
 
 	return s
 }
