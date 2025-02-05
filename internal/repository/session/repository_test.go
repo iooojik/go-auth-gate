@@ -68,7 +68,7 @@ func (s *RepositoryTestSuite) SetupTest() {
     user_id    char(255)                 not null,
     created_at timestamp default CURRENT_TIMESTAMP not null
 );`,
-		`create table user_tokens
+		`create table apple_tokens
 (
     id            int auto_increment
         primary key,
@@ -79,7 +79,7 @@ func (s *RepositoryTestSuite) SetupTest() {
     expires_in    int       default 3600              not null,
     refresh_token text                                not null,
     id_token      text                                not null,
-    constraint user_tokens_pk
+    constraint apple_tokens_pk
         unique (user_id)
 );`,
 	}

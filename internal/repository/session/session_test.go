@@ -60,7 +60,7 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 
 				var userToken session.UserToken
 
-				err = s.db.Get(&userToken, "SELECT * FROM user_tokens WHERE user_id = ?", user.UserID)
+				err = s.db.Get(&userToken, "SELECT * FROM apple_tokens WHERE user_id = ?", user.UserID)
 				s.Require().NoError(err)
 				s.Require().Equal("test-apple-id", userToken.UserID)
 				s.Require().Equal("access-token-123", userToken.AccessToken)
@@ -78,7 +78,7 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 
 				var userToken session.UserToken
 
-				err = s.db.Get(&userToken, "SELECT * FROM user_tokens WHERE user_id = ?", user.UserID)
+				err = s.db.Get(&userToken, "SELECT * FROM apple_tokens WHERE user_id = ?", user.UserID)
 				s.Require().NoError(err)
 				s.Require().Equal("test-apple-id", userToken.UserID)
 				s.Require().Equal("access-token-456", userToken.AccessToken)

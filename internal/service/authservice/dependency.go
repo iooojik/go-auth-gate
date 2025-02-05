@@ -2,6 +2,7 @@ package authservice
 
 import (
 	"context"
+	"iter"
 
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/pkg/apple"
@@ -22,5 +23,7 @@ type (
 		Login(ctx context.Context, loginInfo model.LoginInfo) error
 
 		CheckSession(_ context.Context, userID string) (bool, error)
+
+		FetchAll(ctx context.Context, authType model.TokenType) (iter.Seq2[model.Refresh, error], error)
 	}
 )
