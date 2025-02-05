@@ -1,7 +1,8 @@
-package service
+package authservice
 
 import (
 	"context"
+	"iter"
 
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/pkg/apple"
@@ -14,7 +15,15 @@ type (
 		RefreshToken(ctx context.Context, refresh apple.Refresh) (*apple.AuthCode, error)
 	}
 
-	UserRepository interface {
+	GoogleSignIn interface {
+		CheckToken(ctx context.Context, token string) (bool, error)
+	}
+
+	SessionRepository interface {
 		Login(ctx context.Context, loginInfo model.LoginInfo) error
+
+		CheckSession(_ context.Context, userID string) (bool, error)
+
+		FetchAll(ctx context.Context, authType model.TokenType) (iter.Seq2[model.Refresh, error], error)
 	}
 )
