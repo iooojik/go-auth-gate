@@ -1,4 +1,4 @@
-package service
+package authservice
 
 import (
 	"context"
@@ -14,7 +14,13 @@ type (
 		RefreshToken(ctx context.Context, refresh apple.Refresh) (*apple.AuthCode, error)
 	}
 
+	GoogleSignIn interface {
+		CheckToken(ctx context.Context, token string) (bool, error)
+	}
+
 	SessionRepository interface {
 		Login(ctx context.Context, loginInfo model.LoginInfo) error
+
+		CheckSession(_ context.Context, userID string) (bool, error)
 	}
 )

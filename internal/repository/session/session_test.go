@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
+	"github.com/iooojik/go-auth-gate/pkg/apple"
 )
 
 func (s *RepositoryTestSuite) TestRepository_Login() {
@@ -25,23 +26,29 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 		{
 			name: "test#1",
 			insertArgs: args{
-				cfg: session.Config{
-					SessionDuration: 3600,
-				},
+				cfg: session.Config{},
 				loginInfo: model.LoginInfo{
-					UserID:    "test-apple-id",
-					Token:     "token-123",
-					TokenType: "apple_sign_in",
+					UserID: "test-apple-id",
+					AppleTokenInfo: &apple.AuthCode{
+						AccessToken:  "access-token-123",
+						TokenType:    "Bearer",
+						ExpiresIn:    100,
+						RefreshToken: "refresh-token-123",
+						IDToken:      "id-token-123",
+					},
 				},
 			},
 			updateArgs: args{
-				cfg: session.Config{
-					SessionDuration: 7200,
-				},
+				cfg: session.Config{},
 				loginInfo: model.LoginInfo{
-					UserID:    "test-apple-id",
-					Token:     "token-456",
-					TokenType: "apple_sign_in",
+					UserID: "test-apple-id",
+					AppleTokenInfo: &apple.AuthCode{
+						AccessToken:  "access-token-456",
+						TokenType:    "Bearer",
+						ExpiresIn:    200,
+						RefreshToken: "refresh-token-456",
+						IDToken:      "id-token-456",
+					},
 				},
 			},
 			insertCheck: func() {
@@ -49,26 +56,36 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 
 				err := s.db.Get(&user, "SELECT * FROM users WHERE user_id = ?", "test-apple-id")
 				s.Require().NoError(err)
-				s.Require().Equal(3600, user.SessionDuration)
-				s.Require().Equal("apple_sign_in", user.AuthType)
+				s.Require().Equal("test-apple-id", user.UserID)
 
 				var userToken session.UserToken
+
 				err = s.db.Get(&userToken, "SELECT * FROM user_tokens WHERE user_id = ?", user.UserID)
 				s.Require().NoError(err)
-				s.Require().Equal("token-123", userToken.Token)
+				s.Require().Equal("test-apple-id", userToken.UserID)
+				s.Require().Equal("access-token-123", userToken.AccessToken)
+				s.Require().Equal("Bearer", userToken.TokenType)
+				s.Require().Equal(100, userToken.ExpiresIn)
+				s.Require().Equal("refresh-token-123", userToken.RefreshToken)
+				s.Require().Equal("id-token-123", userToken.IDToken)
 			},
 			updateCheck: func() {
 				var user session.User
 
 				err := s.db.Get(&user, "SELECT * FROM users WHERE user_id = ?", "test-apple-id")
 				s.Require().NoError(err)
-				s.Require().Equal(7200, user.SessionDuration)
-				s.Require().Equal("apple_sign_in", user.AuthType)
+				s.Require().Equal("test-apple-id", user.UserID)
 
 				var userToken session.UserToken
+
 				err = s.db.Get(&userToken, "SELECT * FROM user_tokens WHERE user_id = ?", user.UserID)
 				s.Require().NoError(err)
-				s.Require().Equal("token-456", userToken.Token)
+				s.Require().Equal("test-apple-id", userToken.UserID)
+				s.Require().Equal("access-token-456", userToken.AccessToken)
+				s.Require().Equal("Bearer", userToken.TokenType)
+				s.Require().Equal(200, userToken.ExpiresIn)
+				s.Require().Equal("refresh-token-456", userToken.RefreshToken)
+				s.Require().Equal("id-token-456", userToken.IDToken)
 			},
 			wantErr: false,
 		},

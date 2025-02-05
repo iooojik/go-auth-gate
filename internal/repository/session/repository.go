@@ -1,7 +1,6 @@
 package session
 
 type Config struct {
-	SessionDuration int64 `yaml:"sessionDuration"`
 }
 
 type Repository struct {

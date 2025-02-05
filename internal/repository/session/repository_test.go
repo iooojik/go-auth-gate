@@ -61,21 +61,26 @@ func (s *RepositoryTestSuite) SetupTest() {
 	ctx := context.Background()
 
 	schemas := [2]string{
-		`
-CREATE TABLE users (
-    id               INT AUTO_INCREMENT PRIMARY KEY,
-    user_id          VARCHAR(255) UNIQUE          NOT NULL,
-    session_duration INT                           NOT NULL,
-    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    auth_type        VARCHAR(128)                 NOT NULL
+		`create table users
+(
+    id         int auto_increment
+        primary key,
+    user_id    char(255)                 not null,
+    created_at timestamp default CURRENT_TIMESTAMP not null
 );`,
-		`CREATE TABLE user_tokens (
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    user_id    VARCHAR(255) NOT NULL,
-    token      TEXT         NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT user_tokens_fk FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT user_tokens_unique UNIQUE (user_id)
+		`create table user_tokens
+(
+    id            int auto_increment
+        primary key,
+    user_id       char(255)                           not null,
+    created_at    timestamp default CURRENT_TIMESTAMP not null,
+    access_token  text                                not null,
+    token_type    char(128)                           null,
+    expires_in    int       default 3600              not null,
+    refresh_token text                                not null,
+    id_token      text                                not null,
+    constraint user_tokens_pk
+        unique (user_id)
 );`,
 	}
 
