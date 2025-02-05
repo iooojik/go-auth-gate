@@ -9,6 +9,7 @@ import (
 
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/internal/service"
+	"github.com/iooojik/go-auth-gate/pkg/apple"
 )
 
 func (r *Repository) Login(ctx context.Context, loginInfo model.LoginInfo) error {
@@ -28,7 +29,7 @@ func (r *Repository) Login(ctx context.Context, loginInfo model.LoginInfo) error
 	}
 
 	if loginInfo.TokenType() == model.AppleID {
-		err = r.insertAppleIDToken(ctx, tx, loginInfo)
+		err = r.InsertAppleIDToken(ctx, tx, *loginInfo.AppleTokenInfo, loginInfo.UserID)
 		if err != nil {
 			_ = tx.Rollback()
 			return fmt.Errorf("insert apple id token: %w", err)
@@ -43,9 +44,12 @@ func (r *Repository) Login(ctx context.Context, loginInfo model.LoginInfo) error
 	return nil
 }
 
-func (r *Repository) insertAppleIDToken(ctx context.Context, tx *sql.Tx, loginInfo model.LoginInfo) error {
-	ti := loginInfo.AppleTokenInfo
-
+func (r *Repository) InsertAppleIDToken(
+	ctx context.Context,
+	tx *sql.Tx,
+	ti apple.AuthCode,
+	userID string,
+) error {
 	_, err := tx.ExecContext(ctx, `INSERT INTO apple_tokens 
     (user_id, access_token, token_type, expires_in, refresh_token, id_token, created_at)
 VALUES (?, ?, ?, ?, ?, ?, NOW())
@@ -56,7 +60,7 @@ ON DUPLICATE KEY UPDATE
     refresh_token = VALUES(refresh_token), 
     id_token = VALUES(id_token), 
 	created_at = NOW();`,
-		loginInfo.UserID, ti.AccessToken, ti.TokenType, ti.ExpiresIn, ti.RefreshToken, ti.IDToken)
+		userID, ti.AccessToken, ti.TokenType, ti.ExpiresIn, ti.RefreshToken, ti.IDToken)
 	if err != nil {
 		return fmt.Errorf("insert tokens: %w", err)
 	}
@@ -101,15 +105,15 @@ func (r *Repository) FetchAll(
 }
 
 func (r *Repository) fetchAppleTokens(ctx context.Context) (iter.Seq2[model.Refresh, error], error) {
-	rows, err := r.client.QueryContext(ctx, `
-SELECT user_id,refresh_token FROM apple_tokens WHERE created_at >= NOW() - INTERVAL '30 minutes'`)
+	rows, err := r.client.QueryContext(ctx, `SELECT user_id, refresh_token 
+FROM apple_tokens WHERE created_at >= NOW() - INTERVAL 30 MINUTE;`)
 	if err != nil {
-		return nil, fmt.Errorf("find user by id: %w", err)
+		return nil, fmt.Errorf("find tokens by id: %w", err)
 	}
 
-	defer func() { _ = rows.Close() }()
-
 	return func(yield func(model.Refresh, error) bool) {
+		defer func() { _ = rows.Close() }()
+
 		for rows.Next() {
 			var token model.Refresh
 

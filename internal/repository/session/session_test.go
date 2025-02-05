@@ -117,3 +117,108 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 		tt.updateCheck()
 	}
 }
+
+func (s *RepositoryTestSuite) TestRepository_FetchAll() {
+	type fields struct {
+		cfg session.Config
+	}
+
+	type args struct {
+		authType model.TokenType
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		setup   func(ctx context.Context, r *session.Repository)
+		want    []model.Refresh
+		wantErr bool
+	}{
+		{
+			name: "test#1",
+			fields: fields{
+				cfg: session.Config{},
+			},
+			args: args{
+				authType: model.GoogleSignInAuth,
+			},
+			setup:   func(_ context.Context, _ *session.Repository) {},
+			want:    []model.Refresh{},
+			wantErr: true,
+		},
+		{
+			name: "test#2",
+			fields: fields{
+				cfg: session.Config{},
+			},
+			args: args{
+				authType: model.AppleID,
+			},
+			setup: func(ctx context.Context, r *session.Repository) {
+				tx, err := s.db.Begin()
+				s.Require().NoError(err)
+
+				err = r.InsertAppleIDToken(ctx, tx, apple.AuthCode{
+					AccessToken:  "access-token-123",
+					TokenType:    "token-type-123",
+					ExpiresIn:    33,
+					RefreshToken: "refresh-token-123",
+					IDToken:      "id-token-123",
+				}, "user_1")
+				s.Require().NoError(err)
+
+				err = r.InsertAppleIDToken(ctx, tx, apple.AuthCode{
+					AccessToken:  "access-token-456",
+					TokenType:    "token-type-456",
+					ExpiresIn:    44,
+					RefreshToken: "refresh-token-456",
+					IDToken:      "id-token-456",
+				}, "user_2")
+				s.Require().NoError(err)
+
+				err = tx.Commit()
+				s.Require().NoError(err)
+			},
+			want: []model.Refresh{
+				{
+					RefreshToken: "refresh-token-123",
+					UserID:       "user_1",
+				},
+				{
+					RefreshToken: "refresh-token-456",
+					UserID:       "user_2",
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.name, func() {
+			r := session.New(tt.fields.cfg, s.db)
+
+			ctx := context.Background()
+
+			tt.setup(ctx, r)
+
+			got, err := r.FetchAll(ctx, tt.args.authType)
+			if tt.wantErr {
+				s.Require().Error(err)
+				return
+			}
+
+			s.Require().NoError(err)
+
+			var tokens []model.Refresh
+
+			for t, err := range got {
+				s.Require().NoError(err)
+
+				tokens = append(tokens, t)
+			}
+
+			s.Require().Equal(tt.want, tokens)
+		})
+	}
+}

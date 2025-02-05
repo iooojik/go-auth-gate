@@ -12,9 +12,5 @@ type (
 		Get(dest any, query string, args ...any) error
 
 		QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
-
-		// QueryContext(ctx context.Context, query string, insertArgs ...any) (*sql.Rows, error)
-
-		// ExecContext(ctx context.Context, query string, insertArgs ...any) (sql.Result, error)
 	}
 )
