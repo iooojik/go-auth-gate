@@ -7,29 +7,6 @@ import (
 	"github.com/iooojik/go-auth-gate/pkg/jwt"
 )
 
-type Auth struct {
-	srv         SessionService
-	tokenHeader string
-	validator   jwt.TokenValidator
-	generator   jwt.TokenGenerator
-}
-
-func NewAuth(
-	srv SessionService,
-	tokenHeader string,
-	validator jwt.TokenValidator,
-	generator jwt.TokenGenerator,
-) *Auth {
-	a := &Auth{
-		srv:         srv,
-		tokenHeader: tokenHeader,
-		validator:   validator,
-		generator:   generator,
-	}
-
-	return a
-}
-
 func (a *Auth) Login(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()

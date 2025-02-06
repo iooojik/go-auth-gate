@@ -1,16 +1,15 @@
 package session
 
 type Config struct {
+	SqlDsn string `yaml:"sqlDsn"`
 }
 
 type Repository struct {
-	cfg    Config
 	client Conn
 }
 
-func New(cfg Config, client Conn) *Repository {
+func New(client Conn) *Repository {
 	r := &Repository{
-		cfg:    cfg,
 		client: client,
 	}
 
