@@ -63,7 +63,7 @@ func ValidateToken(secret string) TokenValidator {
 func GenerateToken(key, domain string) TokenGenerator {
 	return func(id string) (string, error) {
 		if id == "" {
-			return "", nil
+			return "", ErrEmptyUserID
 		}
 
 		claims := TokenClaims{

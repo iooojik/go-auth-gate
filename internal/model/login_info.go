@@ -7,7 +7,8 @@ import (
 type TokenType int
 
 const (
-	AppleID TokenType = iota
+	Unknown TokenType = iota
+	AppleID
 	GoogleSignInAuth
 )
 

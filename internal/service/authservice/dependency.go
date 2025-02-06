@@ -16,7 +16,7 @@ type (
 	}
 
 	GoogleSignIn interface {
-		CheckToken(ctx context.Context, token string) (bool, error)
+		CheckToken(ctx context.Context, token string) (string, error)
 	}
 
 	SessionRepository interface {

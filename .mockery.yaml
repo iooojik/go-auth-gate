@@ -11,3 +11,6 @@ packages:
   github.com/iooojik/go-auth-gate/pkg/google:
     config:
       dir: "{{.InterfaceDir}}/mocks"
+  github.com/iooojik/go-auth-gate/internal/middleware:
+    config:
+      dir: "{{.InterfaceDir}}/mocks"

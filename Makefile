@@ -3,3 +3,6 @@ run_local:
 
 test:
 	go test -race ./...
+
+mockery:
+	mockery --all
