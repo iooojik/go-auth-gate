@@ -58,7 +58,7 @@ func TestAuth_Auth(t *testing.T) {
 			},
 			args: args{
 				req: httptest.NewRequest(http.MethodGet, "/", nil),
-				next: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.WriteHeader(http.StatusOK)
 				}),
 			},
@@ -86,7 +86,7 @@ func TestAuth_Auth(t *testing.T) {
 			},
 			args: args{
 				req: httptest.NewRequest(http.MethodGet, "/", nil),
-				next: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.WriteHeader(http.StatusOK)
 				}),
 			},
@@ -95,6 +95,7 @@ func TestAuth_Auth(t *testing.T) {
 		},
 	}
 
+	//nolint:dupl
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
@@ -158,10 +159,12 @@ func TestAuth_Login(t *testing.T) {
 				validator:   jwt.ValidateToken("123"),
 				generator:   jwt.GenerateToken("123", "example.com"),
 			},
-			setup: func(f *fields, a *args) {},
+			setup: func(_ *fields, _ *args) {
+
+			},
 			args: args{
 				req: httptest.NewRequest(http.MethodGet, "https://example.com", nil),
-				next: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.WriteHeader(http.StatusOK)
 				}),
 			},
@@ -176,14 +179,14 @@ func TestAuth_Login(t *testing.T) {
 				validator:   jwt.ValidateToken("123"),
 				generator:   jwt.GenerateToken("123", "example.com"),
 			},
-			setup: func(f *fields, a *args) {
+			setup: func(f *fields, _ *args) {
 				f.srv.EXPECT().
 					GoogleLogin(mock.Anything, "google_token").
 					Return("user_id1", nil)
 			},
 			args: args{
 				req: httptest.NewRequest(http.MethodGet, "https://example.com?token=google_token", nil),
-				next: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.WriteHeader(http.StatusOK)
 				}),
 			},
@@ -198,7 +201,7 @@ func TestAuth_Login(t *testing.T) {
 				validator:   jwt.ValidateToken("123"),
 				generator:   jwt.GenerateToken("123", "example.com"),
 			},
-			setup: func(f *fields, a *args) {
+			setup: func(f *fields, _ *args) {
 				f.srv.EXPECT().
 					AppleLogin(mock.Anything, model.Generate{
 						Code:   "apple_code",
@@ -212,7 +215,7 @@ func TestAuth_Login(t *testing.T) {
 					"https://example.com?code=apple_code&client_id=99",
 					nil,
 				),
-				next: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				next: http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 					w.WriteHeader(http.StatusOK)
 				}),
 			},
@@ -221,6 +224,7 @@ func TestAuth_Login(t *testing.T) {
 		},
 	}
 
+	//nolint:dupl
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()

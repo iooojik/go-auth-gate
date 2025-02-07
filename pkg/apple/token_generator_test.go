@@ -16,12 +16,15 @@ import (
 )
 
 func generateTestPrivateKey(t *testing.T) []byte {
+	t.Helper()
+
 	privKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	require.NoError(t, err)
 
 	derKey, err := x509.MarshalPKCS8PrivateKey(privKey)
 	require.NoError(t, err)
 
+	//nolint:exhaustruct
 	return pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: derKey})
 }
 
@@ -51,20 +54,22 @@ func TestGenerateClientSecret(t *testing.T) {
 				},
 			},
 			validate: func(t *testing.T, a args, token string, err error) {
+				t.Helper()
+
 				require.NoError(t, err)
 
 				parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
-					claims := token.Claims.(jwt.MapClaims)
+					claims := token.Claims.(jwt.MapClaims) //nolint:forcetypeassert
 
 					require.Equal(t, "https://example.com", claims["aud"])
 					require.Equal(t, "test-team", claims["iss"])
 					require.Equal(t, "test-Client", claims["sub"])
 
-					iat := time.Unix(int64(claims["iat"].(float64)), 0)
-					exp := time.Unix(int64(claims["exp"].(float64)), 0)
+					iat := time.Unix(int64(claims["iat"].(float64)), 0) //nolint:forcetypeassert
+					exp := time.Unix(int64(claims["exp"].(float64)), 0) //nolint:forcetypeassert
 
 					require.True(t, iat.Before(exp))
-					require.True(t, exp.Sub(iat).Seconds() == 3600)
+					require.True(t, exp.Sub(iat).Seconds() == 3600) //nolint:testifylint
 
 					return apple.ParseECPrivateKey(a.privateKey).Public(), nil
 				})

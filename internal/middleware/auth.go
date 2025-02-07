@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/iooojik/go-auth-gate/internal/model"
-	"github.com/iooojik/go-auth-gate/pkg/jwt"
 )
 
 func (a *Auth) Login(next http.Handler) http.Handler {
@@ -32,6 +31,11 @@ func (a *Auth) Login(next http.Handler) http.Handler {
 
 		case model.GoogleSignInAuth:
 			authData.ClientID, err = a.srv.GoogleLogin(r.Context(), authData.Token)
+
+		case model.Unknown:
+			w.WriteHeader(http.StatusForbidden)
+
+			return
 
 		default:
 			w.WriteHeader(http.StatusForbidden)

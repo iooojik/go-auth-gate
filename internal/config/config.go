@@ -18,7 +18,7 @@ type Config struct {
 	SQL          session.Config `yaml:"sql"`
 }
 
-func Load(path string) *Config {
+func Load(path string) Config {
 	f, err := os.Open(path)
 	if err != nil {
 		panic(fmt.Sprintf("open config file: %s", err))
@@ -35,5 +35,5 @@ func Load(path string) *Config {
 		panic(fmt.Sprintf("decode config file: %s", err))
 	}
 
-	return cfg
+	return *cfg
 }

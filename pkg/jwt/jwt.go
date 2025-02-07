@@ -28,7 +28,7 @@ type TokenClaims struct {
 func ValidateToken(secret string) TokenValidator {
 	return func(headerToken string) (*TokenClaims, error) {
 		if headerToken == "" {
-			return nil, nil //nolint:nilnil
+			return nil, nil
 		}
 
 		token, err := jwt.Parse(headerToken, func(token *jwt.Token) (any, error) {

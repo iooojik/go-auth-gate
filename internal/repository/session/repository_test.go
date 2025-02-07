@@ -3,7 +3,6 @@ package session_test
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"testing"
 
 	"github.com/jmoiron/sqlx"
@@ -25,6 +24,7 @@ func (s *RepositoryTestSuite) SetupSuite() {
 
 	var err error
 
+	//nolint:exhaustruct
 	req := testcontainers.ContainerRequest{
 		Image:        "mysql:8.0",
 		ExposedPorts: []string{"3306/tcp"},
@@ -42,6 +42,9 @@ func (s *RepositoryTestSuite) SetupSuite() {
 	s.container, err = testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,
+		ProviderType:     0,
+		Logger:           nil,
+		Reuse:            false,
 	})
 
 	s.Require().NoError(err)
@@ -49,9 +52,11 @@ func (s *RepositoryTestSuite) SetupSuite() {
 	host, _ := s.container.Host(ctx)
 	port, _ := s.container.MappedPort(ctx, "3306")
 
-	dsn := fmt.Sprintf("testuser:testpass@tcp(%s:%s)/testdb?parseTime=true&multiStatements=true", host, port.Port())
-
-	slog.Info("connecting", "dsn", dsn)
+	dsn := fmt.Sprintf(
+		"testuser:testpass@tcp(%s:%s)/testdb?parseTime=true&multiStatements=true",
+		host,
+		port.Port(),
+	)
 
 	s.db, err = sqlx.Connect("mysql", dsn)
 	s.Require().NoError(err)
@@ -61,14 +66,15 @@ func (s *RepositoryTestSuite) SetupTest() {
 	ctx := context.Background()
 
 	schemas := [2]string{
-		`create table users
+		`create table if not exists users
 (
     id         int auto_increment
         primary key,
-    user_id    char(255)                 not null,
-    created_at timestamp default CURRENT_TIMESTAMP not null
+    user_id    char(255)                           not null,
+    created_at timestamp default CURRENT_TIMESTAMP not null,
+    auth_type  int       default 0                 not null
 );`,
-		`create table apple_tokens
+		`create table if not exists apple_tokens
 (
     id            int auto_increment
         primary key,
@@ -90,6 +96,7 @@ func (s *RepositoryTestSuite) SetupTest() {
 	}
 }
 
+//nolint:revive
 func (s *RepositoryTestSuite) TearDownTest() {
 	// remove table.
 }

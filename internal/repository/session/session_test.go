@@ -11,7 +11,6 @@ import (
 
 func (s *RepositoryTestSuite) TestRepository_Login() {
 	type args struct {
-		cfg       session.Config
 		loginInfo model.LoginInfo
 	}
 
@@ -26,7 +25,6 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 		{
 			name: "test#1",
 			insertArgs: args{
-				cfg: session.Config{},
 				loginInfo: model.LoginInfo{
 					UserID: "test-apple-id",
 					AppleTokenInfo: &apple.AuthCode{
@@ -39,7 +37,6 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 				},
 			},
 			updateArgs: args{
-				cfg: session.Config{},
 				loginInfo: model.LoginInfo{
 					UserID: "test-apple-id",
 					AppleTokenInfo: &apple.AuthCode{
@@ -54,7 +51,7 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 			insertCheck: func() {
 				var user session.User
 
-				err := s.db.Get(&user, "SELECT * FROM users WHERE user_id = ?", "test-apple-id")
+				err := s.db.Get(&user, "SELECT user_id FROM users WHERE user_id = ?", "test-apple-id")
 				s.Require().NoError(err)
 				s.Require().Equal("test-apple-id", user.UserID)
 
@@ -72,7 +69,7 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 			updateCheck: func() {
 				var user session.User
 
-				err := s.db.Get(&user, "SELECT * FROM users WHERE user_id = ?", "test-apple-id")
+				err := s.db.Get(&user, "SELECT user_id FROM users WHERE user_id = ?", "test-apple-id")
 				s.Require().NoError(err)
 				s.Require().Equal("test-apple-id", user.UserID)
 
@@ -92,7 +89,7 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 	}
 
 	for _, tt := range tests {
-		r := session.New(tt.insertArgs.cfg, s.db)
+		r := session.New(s.db)
 
 		// insert
 		err := r.Login(context.Background(), tt.insertArgs.loginInfo)
@@ -104,7 +101,7 @@ func (s *RepositoryTestSuite) TestRepository_Login() {
 
 		tt.insertCheck()
 
-		r = session.New(tt.updateArgs.cfg, s.db)
+		r = session.New(s.db)
 
 		// update
 		err = r.Login(context.Background(), tt.updateArgs.loginInfo)
@@ -138,7 +135,7 @@ func (s *RepositoryTestSuite) TestRepository_FetchAll() {
 		{
 			name: "test#1",
 			fields: fields{
-				cfg: session.Config{},
+				cfg: session.Config{}, //nolint:exhaustruct
 			},
 			args: args{
 				authType: model.GoogleSignInAuth,
@@ -150,16 +147,16 @@ func (s *RepositoryTestSuite) TestRepository_FetchAll() {
 		{
 			name: "test#2",
 			fields: fields{
-				cfg: session.Config{},
+				cfg: session.Config{}, //nolint:exhaustruct
 			},
 			args: args{
 				authType: model.AppleID,
 			},
-			setup: func(ctx context.Context, r *session.Repository) {
+			setup: func(ctx context.Context, _ *session.Repository) {
 				tx, err := s.db.Begin()
 				s.Require().NoError(err)
 
-				err = r.InsertAppleIDToken(ctx, tx, apple.AuthCode{
+				err = session.InsertAppleIDToken(ctx, tx, apple.AuthCode{
 					AccessToken:  "access-token-123",
 					TokenType:    "token-type-123",
 					ExpiresIn:    33,
@@ -168,7 +165,7 @@ func (s *RepositoryTestSuite) TestRepository_FetchAll() {
 				}, "user_1")
 				s.Require().NoError(err)
 
-				err = r.InsertAppleIDToken(ctx, tx, apple.AuthCode{
+				err = session.InsertAppleIDToken(ctx, tx, apple.AuthCode{
 					AccessToken:  "access-token-456",
 					TokenType:    "token-type-456",
 					ExpiresIn:    44,
@@ -196,7 +193,7 @@ func (s *RepositoryTestSuite) TestRepository_FetchAll() {
 
 	for _, tt := range tests {
 		s.Run(tt.name, func() {
-			r := session.New(tt.fields.cfg, s.db)
+			r := session.New(s.db)
 
 			ctx := context.Background()
 

@@ -37,25 +37,29 @@ func TestClient_RefreshToken(t *testing.T) {
 		{
 			name: "test#1",
 			fields: fields{
-				tokenGenerator: func(cfg apple.TokenConfig) (string, error) {
+				tokenGenerator: func(_ apple.TokenConfig) (string, error) {
 					return "clientToken1", nil
 				},
+				//nolint:exhaustruct
 				cfg: apple.Config{
 					URL: "https://appleid.apple.com",
 				},
 			},
+			//nolint:exhaustruct
 			args: args{
 				refresh: apple.Refresh{
 					RefreshToken: "refreshToken",
 				},
 			},
 			setup: func(ctx context.Context, a *args) {
+				//nolint:revive
 				u, err := url.Parse("https://appleid.apple.com/auth/token?client_id=&client_secret=clientToken1&grant_type=refresh_token&refresh_token=refreshToken")
 				require.NoError(t, err)
 
-				req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, u.String(), nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), nil)
 				require.NoError(t, err)
 
+				//nolint:exhaustruct
 				a.httpClient.
 					EXPECT().
 					Do(req).
@@ -127,25 +131,29 @@ func TestClient_ReceiveToken(t *testing.T) {
 		{
 			name: "test#1",
 			fields: fields{
-				tokenGenerator: func(cfg apple.TokenConfig) (string, error) {
+				tokenGenerator: func(_ apple.TokenConfig) (string, error) {
 					return "clientToken1", nil
 				},
+				//nolint:exhaustruct
 				cfg: apple.Config{
 					URL: "https://appleid.apple.com",
 				},
 			},
+			//nolint:exhaustruct
 			args: args{
 				gen: apple.Generate{
 					Code: "123",
 				},
 			},
 			setup: func(ctx context.Context, a *args) {
+				//nolint:revive
 				u, err := url.Parse("https://appleid.apple.com/auth/token?client_id=&client_secret=clientToken1&code=123&grant_type=authorization_code")
 				require.NoError(t, err)
 
-				req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, u.String(), nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), nil)
 				require.NoError(t, err)
 
+				//nolint:exhaustruct
 				a.httpClient.
 					EXPECT().
 					Do(req).

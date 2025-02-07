@@ -1,7 +1,7 @@
 package session
 
 type Config struct {
-	SqlDsn string `yaml:"sqlDsn"`
+	SQLDsn string `yaml:"sqlDsn"`
 }
 
 type Repository struct {

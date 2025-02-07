@@ -29,6 +29,8 @@ func (r *Client) TokenInfo(ctx context.Context, token string) (*TokenInfo, error
 		return nil, fmt.Errorf("do request: %w", err)
 	}
 
+	defer func() { _ = resp.Body.Close() }()
+
 	err = checkResponse(resp)
 	if err != nil {
 		return nil, err

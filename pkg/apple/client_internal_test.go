@@ -25,6 +25,7 @@ func Test_checkResponse(t *testing.T) {
 		{
 			name: "test#1",
 			args: args{
+				//nolint:exhaustruct
 				resp: &http.Response{
 					StatusCode: http.StatusOK,
 				},
@@ -34,6 +35,7 @@ func Test_checkResponse(t *testing.T) {
 		{
 			name: "test#2",
 			args: args{
+				//nolint:exhaustruct
 				resp: &http.Response{
 					StatusCode: http.StatusBadRequest,
 					Body:       io.NopCloser(strings.NewReader("abcdef")),
@@ -44,6 +46,7 @@ func Test_checkResponse(t *testing.T) {
 		{
 			name: "test#3",
 			args: args{
+				//nolint:revive,exhaustruct
 				resp: &http.Response{
 					StatusCode: http.StatusBadRequest,
 					Body:       io.NopCloser(strings.NewReader("{\n    \"error\": \"invalid_grant\",\n    \"error_description\": \"The code has expired or has been revoked.\"\n}")),

@@ -2,12 +2,14 @@ package session
 
 import (
 	"time"
+
+	"github.com/iooojik/go-auth-gate/internal/model"
 )
 
 type User struct {
-	ID        int       `db:"id"`
-	UserID    string    `db:"user_id"`
-	CreatedAt time.Time `db:"created_at"`
+	ID       int             `db:"id"`
+	UserID   string          `db:"user_id"`
+	AuthType model.TokenType `db:"auth_type"`
 }
 
 type UserToken struct {

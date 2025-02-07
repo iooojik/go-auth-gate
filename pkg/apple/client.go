@@ -37,6 +37,8 @@ func (r *Client) ReceiveToken(ctx context.Context, gen Generate) (*AuthCode, err
 		return nil, fmt.Errorf("do request: %w", err)
 	}
 
+	defer func() { _ = resp.Body.Close() }()
+
 	err = checkResponse(resp)
 	if err != nil {
 		return nil, err
@@ -70,6 +72,8 @@ func (r *Client) RefreshToken(ctx context.Context, refresh Refresh) (*AuthCode, 
 	if err != nil {
 		return nil, fmt.Errorf("do request: %w", err)
 	}
+
+	defer func() { _ = resp.Body.Close() }()
 
 	err = checkResponse(resp)
 	if err != nil {

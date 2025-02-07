@@ -36,10 +36,12 @@ func TestClient_TokenInfo(t *testing.T) {
 		{
 			name: "test#1",
 			fields: fields{
+				//nolint:exhaustruct
 				cfg: google.Config{
 					URL: "https://oauth2.googleapis.com",
 				},
 			},
+			//nolint:exhaustruct
 			args: args{
 				token: "123456",
 			},
@@ -47,18 +49,20 @@ func TestClient_TokenInfo(t *testing.T) {
 				u, err := url.Parse("https://oauth2.googleapis.com/tokeninfo?id_token=123456")
 				require.NoError(t, err)
 
-				req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, u.String(), nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 				require.NoError(t, err)
 
 				a.httpClient.
 					EXPECT().
 					Do(req).
-					Return(&http.Response{
-						StatusCode: http.StatusOK,
-						Body: io.NopCloser(strings.NewReader(
-							"{}")),
-					}, nil)
+					Return(
+						//nolint:exhaustruct
+						&http.Response{
+							StatusCode: http.StatusOK,
+							Body:       io.NopCloser(strings.NewReader("{}")),
+						}, nil)
 			},
+			//nolint:exhaustruct
 			want:    &google.TokenInfo{},
 			wantErr: false,
 		},

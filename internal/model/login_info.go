@@ -20,9 +20,14 @@ func (t TokenType) String() string {
 	case GoogleSignInAuth:
 		return "GoogleSignInAuth"
 
+	case Unknown:
+		panic("unknown token type")
+
 	default:
 		panic("unknown token type")
 	}
+
+	return ""
 }
 
 type LoginInfo struct {

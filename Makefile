@@ -6,3 +6,6 @@ test:
 
 mockery:
 	mockery --all
+
+lint:
+	golangci-lint run -c .golangci.yml

@@ -1,4 +1,4 @@
-package go_auth_gate
+package authgate
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/go-sql-driver/mysql" // compile driver.
 	"github.com/iooojik/go-auth-gate/internal/config"
 	"github.com/iooojik/go-auth-gate/internal/middleware"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
@@ -17,10 +18,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewMiddleware(ctx context.Context, cfgPath string) *middleware.Auth {
-	cfg := config.Load(cfgPath)
-
-	db, err := sqlx.ConnectContext(ctx, "mysql", cfg.SQL.SqlDsn)
+func NewMiddleware(ctx context.Context, cfg config.Config) *middleware.Auth {
+	db, err := sqlx.ConnectContext(ctx, "mysql", cfg.SQL.SQLDsn)
 	if err != nil {
 		panic(err)
 	}
