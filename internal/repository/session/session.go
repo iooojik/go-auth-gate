@@ -88,7 +88,7 @@ func (r *Repository) CheckSession(_ context.Context, userID string) (bool, error
 
 	var token UserToken
 
-	err = r.client.Get(&token, "SELECT id FROM apple_tokens WHERE user_id = ?", userID)
+	err = r.client.Get(&token, "SELECT id,id_token FROM apple_tokens WHERE user_id = ?", userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return false, nil
@@ -96,7 +96,7 @@ func (r *Repository) CheckSession(_ context.Context, userID string) (bool, error
 
 		return false, fmt.Errorf("get token: %w", err)
 	}
-	// 1740140498
+
 	return user.UserID != "" && token.IDToken != "", nil
 }
 
