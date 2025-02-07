@@ -49,14 +49,14 @@ func ValidateToken(secret string) TokenValidator {
 			return nil, fmt.Errorf("marshal claims: %w", err)
 		}
 
-		ctx := new(TokenClaims)
+		uCtx := new(TokenClaims)
 
-		err = json.Unmarshal(data, ctx)
+		err = json.Unmarshal(data, uCtx)
 		if err != nil {
 			return nil, fmt.Errorf("unmarshal claims: %w", err)
 		}
 
-		return ctx, nil
+		return uCtx, nil
 	}
 }
 

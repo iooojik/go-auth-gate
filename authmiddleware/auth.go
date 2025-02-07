@@ -1,9 +1,11 @@
 package authmiddleware
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/iooojik/go-auth-gate/internal/model"
+	"github.com/iooojik/go-auth-gate/jwt"
 )
 
 func (a *Auth) Login(next http.Handler) http.Handler {
@@ -91,6 +93,8 @@ func (a *Auth) Auth(next http.Handler) http.Handler {
 		}
 
 		w.Header().Add(a.tokenHeader, token)
+
+		*r = *r.WithContext(context.WithValue(r.Context(), jwt.UCtxKey, claims))
 
 		next.ServeHTTP(w, r)
 	})
