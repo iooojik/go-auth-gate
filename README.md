@@ -11,6 +11,7 @@ solution.
 - Secure JWT-based authentication mechanism for robust session management.
 - Middleware-based architecture facilitating modular integration within Go applications.
 - Configurable parameters via YAML for flexible deployment and customization.
+- Refresh mechanism for authentication tokens via `refresh.go`.
 
 ## Installation
 
@@ -76,6 +77,52 @@ func TestHandler(w http.ResponseWriter, _ *http.Request) {
 }
 ```
 
+## Token Refresh Mechanism
+
+A token refresh process has been introduced via `refresh.go`, ensuring that authentication tokens remain valid. The
+function `RunRefresh(ctx, cfg)` facilitates automatic refresh of Apple and Google authentication tokens. Below is a
+high-level overview of its functionality:
+
+```go
+func RunRefresh(ctx context.Context, cfg config.Config) error {
+db, err := sqlx.ConnectContext(ctx, "mysql", cfg.SQL.SQLDsn)
+if err != nil {
+panic(err)
+}
+
+sessionsRepo := session.New(db)
+
+appleSecretsFile, err := os.Open(cfg.AppleSignIn.KeyPath)
+if err != nil {
+panic(fmt.Errorf("open apple_sign_in_key_file: %w", err))
+}
+defer appleSecretsFile.Close()
+
+appleSecretsContent, err := io.ReadAll(appleSecretsFile)
+if err != nil {
+panic(fmt.Errorf("read apple_sign_in_key_file: %w", err))
+}
+
+srv := authservice.New(
+apple.New(
+cfg.AppleSignIn,
+apple.GenerateClientSecret(appleSecretsContent),
+http.DefaultClient,
+),
+google.New(cfg.GoogleSignIn, http.DefaultClient),
+sessionsRepo,
+)
+
+r := applerefresh.New(srv)
+err = r.Run(ctx)
+if err != nil {
+return fmt.Errorf("run refresh: %w", err)
+}
+
+return nil
+}
+```
+
 ## Configuration Schema
 
 Authentication and service configurations are specified via a YAML file. Below is an exemplary configuration file:
@@ -100,7 +147,7 @@ jwt:
   domain: ""
 
 sql:
-  sqlDsn: "vpn_root:vpn_pass@tcp(127.0.0.1:3306)/vpn"
+  dsn: "vpn_root:vpn_pass@tcp(127.0.0.1:3306)/vpn"
 ```
 
 ## Execution Instructions
@@ -113,7 +160,12 @@ sql:
    go run main.go
    ```
 
-3. Verify endpoint functionality:
+3. Run the token refresh mechanism:
+   ```sh
+   go run refresh.go
+   ```
+
+4. Verify endpoint functionality:
    ```sh
    curl -X POST http://localhost:8001/auth/test
    ```

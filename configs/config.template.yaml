@@ -17,4 +17,4 @@ jwt:
   domain: ""
 
 sql:
-  sqlDsn: "vpn_root:vpn_pass@tcp(127.0.0.1:3306)/vpn"
+  dsn: "vpn_root:vpn_pass@tcp(127.0.0.1:3306)/vpn"
