@@ -7,16 +7,15 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/iooojik/go-auth-gate/internal/config"
-	applerefresh "github.com/iooojik/go-auth-gate/internal/refresh/apple"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
 	"github.com/iooojik/go-auth-gate/internal/service/authservice"
 	"github.com/iooojik/go-auth-gate/pkg/apple"
 	"github.com/iooojik/go-auth-gate/pkg/google"
+	applerefresh "github.com/iooojik/go-auth-gate/refresh/apple"
 	"github.com/jmoiron/sqlx"
 )
 
-func RunRefresh(ctx context.Context, cfg config.Config) error {
+func RunRefresh(ctx context.Context, cfg Config) error {
 	db, err := sqlx.ConnectContext(ctx, "mysql", cfg.SQL.SQLDsn)
 	if err != nil {
 		panic(err)

@@ -1,12 +1,12 @@
-package middleware_test
+package authmiddleware_test
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/iooojik/go-auth-gate/internal/middleware"
-	"github.com/iooojik/go-auth-gate/internal/middleware/mocks"
+	"github.com/iooojik/go-auth-gate/authmiddleware"
+	"github.com/iooojik/go-auth-gate/authmiddleware/mocks"
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/internal/service"
 	"github.com/iooojik/go-auth-gate/pkg/jwt"
@@ -104,7 +104,7 @@ func TestAuth_Auth(t *testing.T) {
 
 			tt.setup(&tt.fields, &tt.args)
 
-			a := middleware.NewAuth(
+			a := authmiddleware.NewAuth(
 				tt.fields.srv,
 				tt.fields.tokenHeader,
 				tt.fields.validator,
@@ -233,7 +233,7 @@ func TestAuth_Login(t *testing.T) {
 
 			tt.setup(&tt.fields, &tt.args)
 
-			a := middleware.NewAuth(
+			a := authmiddleware.NewAuth(
 				tt.fields.srv,
 				tt.fields.tokenHeader,
 				tt.fields.validator,

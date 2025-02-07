@@ -1,4 +1,4 @@
-package middleware
+package authmiddleware
 
 import (
 	"github.com/iooojik/go-auth-gate/pkg/jwt"

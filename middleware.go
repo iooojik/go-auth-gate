@@ -8,8 +8,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql" // compile driver.
-	"github.com/iooojik/go-auth-gate/internal/config"
-	"github.com/iooojik/go-auth-gate/internal/middleware"
+	"github.com/iooojik/go-auth-gate/authmiddleware"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
 	"github.com/iooojik/go-auth-gate/internal/service/authservice"
 	"github.com/iooojik/go-auth-gate/pkg/apple"
@@ -18,7 +17,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func NewMiddleware(ctx context.Context, cfg config.Config) *middleware.Auth {
+func NewMiddleware(ctx context.Context, cfg Config) *authmiddleware.Auth {
 	db, err := sqlx.ConnectContext(ctx, "mysql", cfg.SQL.SQLDsn)
 	if err != nil {
 		panic(err)
@@ -48,7 +47,7 @@ func NewMiddleware(ctx context.Context, cfg config.Config) *middleware.Auth {
 		sessionsRepo,
 	)
 
-	authMiddleware := middleware.NewAuth(
+	authMiddleware := authmiddleware.NewAuth(
 		srv,
 		jwt.TokenHeader,
 		jwt.ValidateToken(cfg.JWT.SecretKey),
