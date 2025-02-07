@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iooojik/go-auth-gate/apple"
 	"github.com/iooojik/go-auth-gate/internal/model"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
 )
 
 func (s *Service) AppleLogin(ctx context.Context, callbackInfo model.Generate) error {

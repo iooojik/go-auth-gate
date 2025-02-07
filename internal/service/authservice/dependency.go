@@ -4,8 +4,8 @@ import (
 	"context"
 	"iter"
 
+	"github.com/iooojik/go-auth-gate/apple"
 	"github.com/iooojik/go-auth-gate/internal/model"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
 )
 
 type (

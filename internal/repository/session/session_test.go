@@ -4,9 +4,9 @@ import (
 	"context"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/iooojik/go-auth-gate/apple"
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
 )
 
 func (s *RepositoryTestSuite) TestRepository_Login() {

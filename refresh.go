@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/iooojik/go-auth-gate/apple"
+	"github.com/iooojik/go-auth-gate/google"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
 	"github.com/iooojik/go-auth-gate/internal/service/authservice"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
-	"github.com/iooojik/go-auth-gate/pkg/google"
 	applerefresh "github.com/iooojik/go-auth-gate/refresh/apple"
 	"github.com/jmoiron/sqlx"
 )

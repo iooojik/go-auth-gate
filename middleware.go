@@ -8,12 +8,12 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql" // compile driver.
+	"github.com/iooojik/go-auth-gate/apple"
 	"github.com/iooojik/go-auth-gate/authmiddleware"
+	"github.com/iooojik/go-auth-gate/google"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
 	"github.com/iooojik/go-auth-gate/internal/service/authservice"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
-	"github.com/iooojik/go-auth-gate/pkg/google"
-	"github.com/iooojik/go-auth-gate/pkg/jwt"
+	"github.com/iooojik/go-auth-gate/jwt"
 	"github.com/jmoiron/sqlx"
 )
 

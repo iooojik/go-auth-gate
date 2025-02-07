@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/iooojik/go-auth-gate/apple"
+	"github.com/iooojik/go-auth-gate/google"
 	"github.com/iooojik/go-auth-gate/internal/repository/session"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
-	"github.com/iooojik/go-auth-gate/pkg/google"
-	"github.com/iooojik/go-auth-gate/pkg/jwt"
+	"github.com/iooojik/go-auth-gate/jwt"
 	"gopkg.in/yaml.v3"
 )
 

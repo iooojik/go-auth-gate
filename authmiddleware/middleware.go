@@ -1,7 +1,7 @@
 package authmiddleware
 
 import (
-	"github.com/iooojik/go-auth-gate/pkg/jwt"
+	"github.com/iooojik/go-auth-gate/jwt"
 )
 
 type Auth struct {

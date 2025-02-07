@@ -9,7 +9,8 @@ import (
 	"github.com/iooojik/go-auth-gate/authmiddleware/mocks"
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/internal/service"
-	"github.com/iooojik/go-auth-gate/pkg/jwt"
+	"github.com/iooojik/go-auth-gate/jwt"
+
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

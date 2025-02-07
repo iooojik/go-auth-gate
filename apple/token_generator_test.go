@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
+	"github.com/iooojik/go-auth-gate/apple"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"iter"
 
+	"github.com/iooojik/go-auth-gate/apple"
 	"github.com/iooojik/go-auth-gate/internal/model"
 	"github.com/iooojik/go-auth-gate/internal/service"
-	"github.com/iooojik/go-auth-gate/pkg/apple"
 )
 
 func (r *Repository) Login(ctx context.Context, loginInfo model.LoginInfo) error {

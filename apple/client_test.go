@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/iooojik/go-auth-gate/pkg/apple"
-	"github.com/iooojik/go-auth-gate/pkg/apple/mocks"
+	"github.com/iooojik/go-auth-gate/apple"
+	"github.com/iooojik/go-auth-gate/apple/mocks"
 	"github.com/stretchr/testify/require"
 )
 

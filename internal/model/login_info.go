@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/iooojik/go-auth-gate/pkg/apple"
+	"github.com/iooojik/go-auth-gate/apple"
 )
 
 type TokenType int
