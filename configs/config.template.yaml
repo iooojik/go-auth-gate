@@ -1,0 +1,20 @@
+appleSignIn:
+  url: "https://appleid.apple.com"
+  keyPath: "configs/apple_key.p8"
+  token:
+    clientID: ""
+    teamID: ""
+    keyID: ""
+    audience: "https://appleid.apple.com"
+    exp: 2592000
+
+googleSignIn:
+  url: "https://oauth2.googleapis.com"
+  appID: ""
+
+jwt:
+  secretKey: ""
+  domain: ""
+
+sql:
+  sqlDsn: "vpn_root:vpn_pass@tcp(127.0.0.1:3306)/vpn"
