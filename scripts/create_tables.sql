@@ -13,11 +13,13 @@ create table if not exists apple_tokens
         unique (user_id)
 );
 
-create table if not exists users
+create table users
 (
     id         int auto_increment
         primary key,
     user_id    char(255)                           not null,
     created_at timestamp default CURRENT_TIMESTAMP not null,
-    auth_type  int       default 0                 not null
+    auth_type  int       default 0                 not null,
+    constraint users_pk
+        unique (user_id)
 );

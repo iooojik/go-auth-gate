@@ -20,7 +20,8 @@ func (r *Repository) Login(ctx context.Context, loginInfo model.LoginInfo) error
 
 	_, err = tx.ExecContext(
 		ctx,
-		`INSERT INTO users (user_id, created_at, auth_type) VALUES (?, NOW(), ?);`,
+		`INSERT INTO users (user_id, created_at, auth_type) VALUES (?, NOW(), ?)
+ON DUPLICATE KEY UPDATE created_at = NOW();`,
 		loginInfo.UserID,
 		loginInfo.TokenType(),
 	)
