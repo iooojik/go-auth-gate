@@ -3,6 +3,7 @@ package google
 import (
 	"context"
 	"fmt"
+	"slices"
 )
 
 func (r *Client) CheckToken(ctx context.Context, token string) (string, error) {
@@ -11,7 +12,7 @@ func (r *Client) CheckToken(ctx context.Context, token string) (string, error) {
 		return "", fmt.Errorf("fetch token info: %w", err)
 	}
 
-	if tokenInfo.Aud != r.cfg.AppID {
+	if !slices.Contains(r.cfg.AppID, tokenInfo.Aud) {
 		return "", nil
 	}
 

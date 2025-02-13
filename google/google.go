@@ -1,8 +1,8 @@
 package google
 
 type Config struct {
-	URL   string `yaml:"url"`
-	AppID string `yaml:"appID"`
+	URL   string   `yaml:"url"`
+	AppID []string `yaml:"appID"`
 }
 
 type Client struct {
