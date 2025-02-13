@@ -2,6 +2,7 @@ package authmiddleware
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/iooojik/go-auth-gate/internal/model"
@@ -46,6 +47,7 @@ func (a *Auth) Login(next http.Handler) http.Handler {
 		}
 
 		if err != nil {
+			slog.Error("auth", "err", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 
 			return
@@ -54,6 +56,7 @@ func (a *Auth) Login(next http.Handler) http.Handler {
 		// 4. generate new token.
 		token, err := a.generator(authData.ClientID)
 		if err != nil {
+			slog.Error("auth", "err", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 
 			return
